@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+
+# create-rpz-zone-autodiscover-block
+#
+# Script to take a list of etlds (the public_suffix_list)
+# and convert it into an "rpz" style zone payload (minus ORIGIN, SOA, NS records)
+#
+# FIXME - convert to arguments for options, rather than fixed filenames
+
+use Getopt::Std;
+
+getopts("f:");
+
+# WAS $in_etlds="etld-list-wo-DOTname";
+my $psl="public_suffix_list.txt";
+my $block_target = "."; # return NXDOMAIN
+
+printf "// Using $psl, based from orininal UTF8 source from publicsuffix.org, processed with mk_puny script.\n";
+printf "// The following lines should be put into a DNS zone file, and appropriate configuration for RPZ added to the server configuration file(s).\n";
+printf "// This script should be periodically run using the latest version of the public suffix list.\n";
+printf "// Consider whether or not to use the non-ICANN portion of the list.\n";
+printf "// The separator is printed on a line by itself:  // ===END ICANN DOMAINS===\n";
+
+open(ET,"<$psl");
+while(<ET>){
+chomp;
+print if /^\/\/ ===END ICANN DOMAINS===/;
+next if /^\/\//;
+s/ .*//; #trim anything following any whitespace
+next if /^$/;
+
+# need to report existence of \* records
+# which need additional data and handling
+# (Basically, need to enumerate actual zone vs wildcard)
+# (result would be equivalent to foo.*.parent which is not allowed)
+
+if(/^\*/){
+  printf STDERR "Post-processing required for %s\n",$_;
+  }
+else {
+  printf "autodiscover.%s CNAME %s\n",$_,$block_target;
+  }
+
+}
+close(ET);

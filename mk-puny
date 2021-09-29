@@ -1,0 +1,13 @@
+#!/usr/bin/perl
+
+use Net::IDN::Encode ':all';
+use open ':std', ':encoding(UTF-8)';
+foreach $line ( <> ) {
+ if($line =~ /^$/ || $line =~ /^\/\//){
+   print $line;
+   next;
+   }
+ chomp ( $line );
+  my $a = domain_to_ascii( $line );
+ print "$a\n";
+ }

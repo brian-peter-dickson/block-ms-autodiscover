@@ -1,0 +1,9 @@
+#!/bin/bash
+wget https://publicsuffix.org/list/public_suffix_list.dat
+patch <patch-all-cctlds-slds 
+# change this to match whatever the appropriate -I path is for the machine running this
+echo "Modify the following to mathc the Include path for perl libraries used"
+echo 'perl -I /opt/local/lib/perl5/vendor_perl/5.26/darwin-thread-multi-2level/ ./mk-puny <public_suffix_list.dat >public_suffix_list.txt'
+echo "Running the above command as-is"
+perl -I /opt/local/lib/perl5/vendor_perl/5.26/darwin-thread-multi-2level/ ./mk-puny <public_suffix_list.dat >public_suffix_list.txt
+./create-rpz-zone-autodiscover-block >block-ms-autodiscover-rpz-body
